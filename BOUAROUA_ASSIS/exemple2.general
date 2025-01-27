@@ -1,1 +1,2 @@
-S : aSbS | a | b | E
+A0 : A0a
+A0 : E

@@ -1,2 +1,1 @@
-S : aS | bA | E
-A : bS | c
+S : aSa | bSb | a | b | E

@@ -1,26 +1,38 @@
-# Par défaut, exécuter toutes les étapes pour tous les fichiers
-all: run_grammaire run_generer
+# Variables
+PYTHON = python3
+GRAMMAIRE_SCRIPT = grammaire.py
+GENERER_SCRIPT = generer.py
+EXEMPLES = exemple1 exemple2 exemple3 exemple4 exemple5
+OUTPUT_DIR = ./output
+GENERER_MODES = greibach chomsky
+LENGTH = 3  # Valeur par défaut pour la longueur
 
-# Exécute le programme principal pour chaque fichier
-run_grammaire:
-	@echo "Execution de grammaire.py pour tous les fichiers"
-	python3 grammaire.py exemple1.general || exit 1;
-	python3 grammaire.py exemple2.general || exit 1;
-	python3 grammaire.py exemple3.general || exit 1;
-	python3 grammaire.py exemple4.general || exit 1;
-	python3 grammaire.py exemple5.general || exit 1;
+# Si une longueur est spécifiée en ligne de commande, elle sera utilisée
+ifeq ($(origin length), command line)
+    LENGTH = $(length)
+endif
 
-# Génération des mots
-run_generer:
-	@echo "Generation des mots à partir des fichiers"
-	python3 generer.py ./output/exemple1.greibach 3 || exit 1;
-	python3 generer.py ./output/exemple1.chomsky 3 || exit 1;
-	python3 generer.py ./output/exemple2.greibach 3 || exit 1;
-	python3 generer.py ./output/exemple2.chomsky 3 || exit 1;
-	python3 generer.py ./output/exemple3.greibach 3 || exit 1;
-	python3 generer.py ./output/exemple3.chomsky 3 || exit 1;
-	python3 generer.py ./output/exemple4.greibach 3 || exit 1;
-	python3 generer.py ./output/exemple4.chomsky 3 || exit 1;
-	python3 generer.py ./output/exemple5.greibach 3 || exit 1;
-	python3 generer.py ./output/exemple5.chomsky 3 || exit 1;
-	
+# Par défaut, affiche les options disponibles
+all:
+	@echo "Transformation des fichiers avec $(GRAMMAIRE_SCRIPT)"
+	@for exemple in $(EXEMPLES); do \
+		echo "Processing $$exemple.general"; \
+		$(PYTHON) $(GRAMMAIRE_SCRIPT) $$exemple.general || exit 1; \
+	done
+
+# Génération des mots (équivalent à run_generer)
+generate:
+	@echo "Génération des mots avec $(GENERER_SCRIPT), longueur = $(LENGTH)"
+	@for exemple in $(EXEMPLES); do \
+		for mode in $(GENERER_MODES); do \
+			echo "Generating words for $$exemple.$$mode with length $(LENGTH)"; \
+			$(PYTHON) $(GENERER_SCRIPT) $(OUTPUT_DIR)/$$exemple.$$mode $(LENGTH) || exit 1; \
+		done \
+	done
+
+# Nettoyage des fichiers générés
+clean:
+	@echo "Nettoyage des fichiers générés dans $(OUTPUT_DIR)"
+	@rm -rf $(OUTPUT_DIR)
+
+.PHONY: all transform generate clean
